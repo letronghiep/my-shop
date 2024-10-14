@@ -1,0 +1,1 @@
+export const apiOrigin: string = (process.env.NEXT_PUBLIC_SERVER_URL as string) || "http://localhost:3055/v1/api";
