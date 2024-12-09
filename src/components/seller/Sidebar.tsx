@@ -98,7 +98,7 @@ function Sidebar() {
     <Sider
       style={{ background: colorBgContainer, color: colorText }}
       className="site-layout-background"
-      width={200}
+      width={240}
     >
       <Menu defaultSelectedKeys={["1"]} mode="inline" items={menuSidebar} />
     </Sider>

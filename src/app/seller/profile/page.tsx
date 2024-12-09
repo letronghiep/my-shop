@@ -1,5 +1,4 @@
 "use client";
-import TextField from "@/components/TextField";
 import WorkFlow, { ClassName, Label, State } from "@/components/WorkFlow";
 import useResponsive from "@/hooks/useResponsive";
 import { getMe } from "@/services/user";
@@ -35,27 +34,13 @@ function Profiles() {
   } = useForm({
     criteriaMode: "all",
   });
-  const { user } = useAuthStore();
-  useEffect(() => {
-    if (user) setDataUser(user);
-  }, [user]);
-
   const accountId = useId();
   const profileId = useId();
   const addressId = useId();
-  const setValueOfFormData = useCallback(() => {
-    setValue("userId", dataUser?.usr_id ?? "");
-    setValue("username", dataUser?.usr_name ?? "");
-    setValue("fullName", dataUser?.usr_full_name ?? "");
-    setValue("sex", dataUser?.usr_sex ?? "");
-  }, [dataUser, setValue]);
-  useEffect(() => {
-    if (dataUser) setValueOfFormData();
-  }, [dataUser, setValueOfFormData]);
+  
   useEffect(() => {
     async function getDataMe() {
       const data = await getMe();
-      console.log(data);
     }
     getDataMe();
   }, []);
@@ -96,6 +81,7 @@ function Profiles() {
   const handleEditAvatar = () => {
     setEditAvatar(!editAvatar);
   };
+  const handleChangeImage = () => {};
   return (
     <>
       <h1 className="font-bold text-2xl ">Hồ sơ người bán</h1>
@@ -124,7 +110,7 @@ function Profiles() {
       <div className="px-5 py-4 bg-white shadow-sm shadow-slate-300 flex items-center justify-between">
         <div className="flex items-center gap-x-3">
           <div
-            className="relative w-fit h-fit rounded-full overflow-hidden"
+            className="relative w-[90px] h-[90px] rounded-full overflow-hidden"
             onMouseEnter={handleEditAvatar}
             onMouseLeave={handleEditAvatar}
           >
@@ -132,23 +118,32 @@ function Profiles() {
               <Image
                 src={dataUser.usr_avatar}
                 alt={dataUser.usr_avatar}
-                width={90}
-                height={90}
-                className="rounded-full"
+                fill={true}
+                sizes="100%"
+                className="rounded-full object-cover"
               />
             ) : (
               <Image
-                src="/no-avatar.avif"
+                src="/no-avatar.png"
                 alt="no avatar"
-                width={90}
-                height={90}
-                className="rounded-full "
+                fill={true}
+                sizes="100%"
+                className="object-cover"
               />
             )}
             {editAvatar && (
-              <div className="absolute bottom-0 right-0  -translate-y-1/2 rounded-b-full text-white w-full bg-edit-bg flex items-center justify-center">
+              <label
+                htmlFor="avatar"
+                className="absolute bottom-0 right-0  rounded-b-full text-white w-full bg-edit-bg flex items-center justify-center cursor-pointer py-1"
+              >
+                <input
+                  id="avatar"
+                  className="hidden"
+                  type="file"
+                  onChange={handleChangeImage}
+                />
                 Edit
-              </div>
+              </label>
             )}
           </div>
           <div className="flex flex-col md:flex-row gap-y-1 md:gap-x-2">
@@ -234,31 +229,6 @@ function Profiles() {
               <h2 className="font-bold text-base">Tài khoản đăng nhập</h2>
               <p className="text-gray-500">Quản lý tài khoản đăng nhập Shop</p>
             </div>
-            <TextField
-              enableEdit={enableEdit}
-              title="Tài khoản"
-              register={register}
-              name="username"
-              placeholder="Le trong hiep"
-              allowEdit={false}
-            />
-            <TextField
-              enableEdit={enableEdit}
-              title="ID tài khoản"
-              register={register}
-              name="userId"
-              placeholder="453444"
-              allowEdit={false}
-            />
-            <TextField
-              enableEdit={enableEdit}
-              register={register}
-              name="email"
-              title="Email"
-              value="abc@example.com"
-              placeholder="abc@example.com"
-              allowEdit={true}
-            />
           </div>
           <div
             id={addressId}
@@ -270,66 +240,31 @@ function Profiles() {
                 Quản lý thông tin cá nhân của Shop
               </p>
             </div>
-            <TextField
-              enableEdit={enableEdit}
-              title="Họ tên"
-              register={register}
-              placeholder="Nguyen Van A"
-              name="fullName"
-              allowEdit={false}
-            />
-            <TextField
-              enableEdit={enableEdit}
-              title="Số điện thoại"
-              name="phone"
-              register={register}
-              placeholder="09xxxxxx14"
-              allowEdit={true}
-            />
-            {enableEdit ? (
-              <div className="flex items-center w-full">
-                <h2 className="w-max flex-1">Giới tính</h2>
-                <div className="flex gap-x-3 flex-1">
-                  <label className="flex items-center gap-x-2">
-                    <input
-                      type="radio"
-                      value="Nam"
-                      {...register("sex")}
-                      onChange={() => setValue("sex", "Nam")}
-                      defaultChecked={dataUser?.usr_sex === "Nam"}
-                    />
-                    <span>Nam</span>
-                  </label>
-                  <label className="flex items-center gap-x-2">
-                    <input
-                      type="radio"
-                      value="Nữ"
-                      {...register("sex")}
-                      onChange={() => setValue("sex", "Nữ")}
-                      defaultChecked={dataUser?.usr_sex === "Nữ"}
-                    />
-                    <span>Nữ</span>
-                  </label>
-                </div>
+            <div className="flex items-center w-full">
+              <h2 className="w-max flex-1">Giới tính</h2>
+              <div className="flex gap-x-3 flex-1">
+                <label className="flex items-center gap-x-2">
+                  <input
+                    type="radio"
+                    value="Nam"
+                    {...register("sex")}
+                    onChange={() => setValue("sex", "Nam")}
+                    defaultChecked={dataUser?.usr_sex === "Nam"}
+                  />
+                  <span>Nam</span>
+                </label>
+                <label className="flex items-center gap-x-2">
+                  <input
+                    type="radio"
+                    value="Nữ"
+                    {...register("sex")}
+                    onChange={() => setValue("sex", "Nữ")}
+                    defaultChecked={dataUser?.usr_sex === "Nữ"}
+                  />
+                  <span>Nữ</span>
+                </label>
               </div>
-            ) : (
-              <TextField
-                enableEdit={enableEdit}
-                title="Giới tính"
-                name="sex"
-                register={register}
-                placeholder="Nam"
-                allowEdit={true}
-              />
-            )}
-            <TextField
-              enableEdit={enableEdit}
-              title="Sinh nhật"
-              name="dateOfBirth"
-              register={register}
-              placeholder="MM/dd/yyyy"
-              allowEdit={true}
-            />
+            </div>
           </div>
           <div
             id={profileId}
@@ -339,22 +274,6 @@ function Profiles() {
               <h2 className="font-bold text-base">Địa chỉ kho</h2>
               <p className="text-gray-500">Quản lý địa chỉ giao / nhận hàng</p>
             </div>
-            <TextField
-              enableEdit={enableEdit}
-              title="Địa chỉ nhân"
-              register={register}
-              placeholder="Phu Dien - Bac Tu Liem - Ha Noi"
-              name="received"
-              allowEdit={true}
-            />
-            <TextField
-              enableEdit={enableEdit}
-              title="Địa chỉ gửi"
-              register={register}
-              placeholder="Phu Dien - Bac Tu Liem - Ha Noi"
-              name="sent"
-              allowEdit={true}
-            />
           </div>
         </div>
       </div>

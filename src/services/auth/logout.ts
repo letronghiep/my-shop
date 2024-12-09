@@ -2,7 +2,8 @@ import { axiosInstance } from "@/configs/axiosInstance";
 
 export async function handleLogout() {
   try {
-    const data = await axiosInstance.post("/auth/logout");
+    const res = await axiosInstance.post("/auth/logout");
+    const data = await res.data;
     return data;
   } catch (error) {
     console.log(error);

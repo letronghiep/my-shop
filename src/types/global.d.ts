@@ -22,11 +22,13 @@ export type FormData = {
 
 export interface FormFieldProps {
   type?: string;
-  placeholder: string;
+  placeholder?: string;
   name: ValidFieldNames | string;
   register: UseFormRegister<T>;
   error?: FieldError | undefined;
   valueAsNumber?: boolean;
+  options?: React.PropsWithChildren<any>;
+  label?: string;
 }
 
 export type ValidFieldNames =
@@ -37,7 +39,7 @@ export type ValidFieldNames =
 
 export interface IUser {
   _id?: string;
-  usr_id?: Number;
+  usr_id?: number;
   usr_name?: string;
   usr_slug?: string;
   usr_full_name?: string;

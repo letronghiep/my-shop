@@ -4,6 +4,7 @@ import { z, ZodType } from "zod";
 export const SignUpSchema = z
   .object({
     username: z.string().nonempty("Vui lòng điền vào mục này"),
+    fullname: z.string().nonempty("Vui lòng điền vào trường này"),
     password: z
       .string()
       .min(8, { message: "Mật khẩu quá ngắn" })

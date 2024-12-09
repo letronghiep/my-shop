@@ -4,18 +4,22 @@ const baseURL = process.env.NEXT_PUBLIC_SERVER_URL;
 export const axiosInstance = axios.create({
   baseURL,
   headers: {
-    "Content-Type": "application/json",
+    "Content-Type": "application/json;charset=UTF-8",
+    "Access-Control-Allow-Origin": true,
+    "Access-Control-Allow-Methods": ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    "Access-Control-Allow-Headers":
+      ['Origin', 'Authorization', 'Content-Type', 'Accept']
   },
   withCredentials: true,
 });
 axiosInstance.interceptors.request.use(function (
   config: InternalAxiosRequestConfig<any>
 ) {
-  if (process.env.NEXT_PUBLIC_API_KEY) {
-    config.headers["x-api-key"] = process.env.NEXT_PUBLIC_API_KEY;
-  } else {
-    delete config.headers["x-api-key"];
-  }
+  // if (process.env.NEXT_PUBLIC_API_KEY) {
+  //   config.headers["x-api-key"] = process.env.NEXT_PUBLIC_API_KEY;
+  // } else {
+  //   delete config.headers["x-api-key"];
+  // }
   const token = localStorage.getItem("token");
   if (token) {
     const dataToken = JSON.parse(token);

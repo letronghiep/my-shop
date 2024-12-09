@@ -2,14 +2,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Typography } from "antd";
 import { motion } from "framer-motion";
-import Input from "../Input";
+import Input from "../inputs/Input";
 
 import useLocalStorage from "@/hooks/useLocalStorage";
 import useResponsive from "@/hooks/useResponsive";
 import { SignUpFormType, SignUpSchema } from "@/schemas/SignUpSchema";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Button from "../Button";
 interface FormProps {
@@ -27,6 +27,8 @@ function RegisterForm({ title, onSubmit }: FormProps) {
     resolver: zodResolver(SignUpSchema),
   });
   const { Text } = Typography;
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("next") || "/";
 
   const { isMobile, isTablet, isDesktop } = useResponsive();
   return (
@@ -93,6 +95,15 @@ function RegisterForm({ title, onSubmit }: FormProps) {
                   variant={`${errors.username ? "danger" : "default"}`}
                 />
                 <Input
+                  type="text"
+                  placeholder="Họ và tên"
+                  name="fullname"
+                  register={register}
+                  error={errors.fullname}
+                  size="sm"
+                  variant={`${errors.fullname ? "danger" : "default"}`}
+                />
+                <Input
                   type="password"
                   placeholder="Mật khẩu"
                   name="password"
@@ -123,7 +134,7 @@ function RegisterForm({ title, onSubmit }: FormProps) {
                     Bạn đã có tài khoản?
                     <Link
                       className="text-blue-500 hover:underline ml-2 "
-                      href="/seller/login"
+                      href={`/login?${searchParams}`}
                     >
                       Đăng nhập
                     </Link>

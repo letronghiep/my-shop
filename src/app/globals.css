@@ -6,3 +6,24 @@
 }
 
 
+::-webkit-scrollbar { 
+    /* Tùy chỉnh độ rộng của thanh cuộn */ 
+    width: 8px;
+} 
+
+::-webkit-scrollbar-track { 
+    /* Tùy chỉnh thanh cuộn */ 
+    width: 8px;
+    background-color: #ccc;
+    border-radius: 20px;
+
+} 
+
+::-webkit-scrollbar-thumb { 
+    /* Tùy chỉnh thanh cuộn */ 
+    width: 8px;
+    background-color: #f1f1f1;
+    border-radius: 20px;
+
+
+}

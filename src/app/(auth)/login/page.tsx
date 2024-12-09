@@ -1,13 +1,11 @@
 "use client";
-import SpinLoading from "@/components/loading/SpinLoading";
 import { LoginForm } from "@/components/login";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { FormData } from "@/schemas/SignInSchema";
 import useAuthStore from "@/stores/userStore";
 import { notification } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect } from "react";
-
+import { useEffect } from "react";
+import '../../globals.css';
 type Props = {};
 
 export default function Login({}: Props) {

@@ -11,18 +11,22 @@ enum Permission {
   User = "s00003",
 }
 export default async function middleware(req: NextRequest) {
-  const refreshToken = req.cookies.get('refreshToken');
+  const refreshTokenCookie = req.cookies.get("refreshToken");
   const { pathname, search, searchParams, origin } = req.nextUrl;
-  const protectedRoutes = [
+  const protectedPaths = [
     "/profile",
     "/seller",
     "/dashboard",
     "/checkout",
     "/cart",
   ];
-  const isAccessRoute = protectedRoutes.some((path) =>
-    req.nextUrl.pathname.includes(path)
+  const isProtectedRoute = protectedPaths.some((path) =>
+    pathname.includes(path)
   );
+  const isPublicRoute = publicRoutes.some((path) => pathname.startsWith(path));
+  if (isPublicRoute) {
+    return NextResponse.next();
+  }
   if (searchParams.has("redirected")) return NextResponse.next();
   const redirectUrl = "/login";
   const nextUrl = encodeURIComponent(
@@ -31,36 +35,27 @@ export default async function middleware(req: NextRequest) {
   const url = new URL(redirectUrl, req.url);
   url.searchParams.set("redirected", "true");
   url.searchParams.set("next", nextUrl);
-  if (isAccessRoute) {
-    if (!refreshToken) {
+  if (isProtectedRoute) {
+    if (!refreshTokenCookie) {
       const response = NextResponse.redirect(url);
       response.cookies.delete("refreshToken");
       return response;
     }
-    if (isTokenExpired(refreshToken.value)) {
+    const refreshToken = refreshTokenCookie.value;
+    if (isTokenExpired(refreshToken)) {
       const response = NextResponse.next();
       response.cookies.delete("refreshToken");
-      const data = await handleRefreshToken();
-      if (data) {
-        response.cookies.set({
-          name: "refreshToken",
-          value: data.metadata.tokens.refreshToken,
-          maxAge: 24 * 60 * 60 * 7,
-          httpOnly: true,
-        });
-        return NextResponse.next();
-      }
+      await handleRefreshToken();
       return NextResponse.next();
     }
   }
-  if (req.nextUrl.pathname.startsWith("/dashboard")) {
-    if (!refreshToken) {
+  if (pathname.startsWith("/dashboard")) {
+    if (!refreshTokenCookie) {
       const response = NextResponse.redirect(url);
       response.cookies.delete("refreshToken");
       return response;
     }
-    const token: TokenData = await jwtDecode(refreshToken.value);
-    const { role } = token;
+    const { role } = jwtDecode(refreshTokenCookie.value) as TokenData;
     if (!checkPermission(role, Permission.Admin)) {
       const response = NextResponse.redirect(
         new URL("/un-authorized", req.url)
@@ -70,19 +65,13 @@ export default async function middleware(req: NextRequest) {
     }
     return NextResponse.next();
   }
-  // if (req.nextUrl.pathname.startsWith("/login")) {
-  //   console.log(req.nextUrl.pathname)
-  //   const accessToken = req.cookies.get("accessToken");
-  //   const response = NextResponse.next();
-  //   response.cookies.delete("accessToken");
-  //   response.cookies.delete("refreshToken");
-  //   if (accessToken) {
-  //     if(!isTokenExpired(accessToken.value)) {
-  //         return response;
-  //     }
-  //   }
-  //   return response;
-  // }
+  if (pathname.startsWith("/login") || pathname.startsWith("/register")) {
+    if (refreshTokenCookie) {
+      const response = NextResponse.redirect(nextUrl);
+      return response;
+    }
+    return NextResponse.next();
+  }
 }
 export const config = {
   matcher: [
@@ -90,8 +79,8 @@ export const config = {
     "/profile",
     "/seller/:path*",
     "/dashboard/:path*",
-    // "/login/:path*",
-    // "/register/:path*",
+    "/login",
+    "/register",
     // '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 };

@@ -1,5 +1,5 @@
 "use client";
-import Input from "@/components/Input";
+import Input from "@/components/inputs/Input";
 import useResponsive from "@/hooks/useResponsive";
 import { FormData, SignInSchema } from "@/schemas/SignInSchema";
 import { FacebookFilled, GoogleOutlined } from "@ant-design/icons";
@@ -10,6 +10,8 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import Button from "../Button";
 import SpinLoading from "../loading/SpinLoading";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 // import { useAuth } from "../AuthProvider";
 interface FormProps {
   title: string;
@@ -28,7 +30,7 @@ function LoginForm({ title, onSubmit, loading }: FormProps) {
   });
   const { Text, Link } = Typography;
   const { isMobile, isTablet, isDesktop } = useResponsive();
-
+  const searchParams = useSearchParams();
   return (
     <div
       className=""
@@ -90,20 +92,23 @@ function LoginForm({ title, onSubmit, loading }: FormProps) {
             >
               <Input
                 type="text"
-                placeholder="Email/Số điện thoại/Tên đăng nhập"
+                label="Tài khoản"
                 name="username"
                 register={register}
                 error={errors.username}
                 size="sm"
+                options={{}}
                 variant={`${errors.username ? "danger" : "default"}`}
               />
               <Input
                 type="password"
-                placeholder="Mật khẩu"
+                label="Mật khẩu"
                 name="password"
                 register={register}
+                placeholder="Mật khẩu"
                 error={errors.password}
                 size="sm"
+                options={{}}
                 variant={`${errors.password ? "danger" : "default"}`}
               />
 
@@ -111,7 +116,7 @@ function LoginForm({ title, onSubmit, loading }: FormProps) {
                 <Checkbox>Ghi nhớ mật khẩu</Checkbox>
                 <Link
                   className="text-blue-500 hover:underline"
-                  href="/seller/forgot-password"
+                  href="/forgot-password"
                 >
                   Quên mật khẩu?
                 </Link>
@@ -154,7 +159,7 @@ function LoginForm({ title, onSubmit, loading }: FormProps) {
                   Bạn mới biết đến cửa hàng?
                   <Link
                     className="text-blue-500 hover:underline ml-2 "
-                    href="/seller/register"
+                    href={`/register?${searchParams}`}
                   >
                     Đăng ký
                   </Link>

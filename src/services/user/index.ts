@@ -23,3 +23,16 @@ export async function updateUserToShop(user: IUser) {
     return error;
   }
 }
+export async function updateUserInfo(userId: string, user: IUser) {
+  try {
+    const res = await axiosInstance.put(
+      `${apiOrigin}/user/update/${userId}`,
+      user
+    );
+    console.log(res);
+    const data = await res.data;
+    return data;
+  } catch (error) {
+    return error;
+  }
+}

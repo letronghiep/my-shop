@@ -1,6 +1,7 @@
 "use client";
 import SpinLoading from "@/components/loading/SpinLoading";
 import Sidebar from "@/components/seller/Sidebar";
+import useResponsive from "@/hooks/useResponsive";
 import { getMe } from "@/services/user";
 import useAuthStore from "@/stores/userStore";
 import { IUser } from "@/types/global";
@@ -58,23 +59,13 @@ function ShopLayout({ children }: Props) {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+  const { isMobile } = useResponsive();
   const router = useRouter();
   const [token, setToken] = useState<string>("");
   const authStore = useAuthStore();
-  const userId = useAuthStore((state) => state.user).usr_id;
+  const userId = useAuthStore((state) => state.user)._id;
   const user = useAuthStore((state) => state.user);
-  const fullName = useAuthStore((state) => state.user.usr_full_name);
   const phoneNumber = useAuthStore((state) => state.user.usr_phone);
-  const [dataUser, setDataUser] = useState<IUser>();
-  useEffect(() => {
-    const data = localStorage.getItem("token");
-    if (data) {
-      const dataToken = JSON.parse(data);
-      if (dataToken) {
-        setToken(dataToken.accessToken);
-      }
-    }
-  }, [token]);
   useEffect(() => {
     async function checkUser() {
       if (!userId && token) {
@@ -84,51 +75,74 @@ function ShopLayout({ children }: Props) {
           authStore.isAuthenticated = true;
           authStore.loading = false;
           const dataToken = {
-            accessToken: data.metadata.tokens.accessToken,
+            accessToken: data.metadata.tokens,
             client_id: data.metadata.user._id,
           };
           localStorage.setItem("token", JSON.stringify(dataToken));
         }
+        router.refresh();
       }
     }
     checkUser();
-  }, [token, userId, user, authStore]);
+  }, [userId, token, authStore, router]);
+  useEffect(() => {
+    const data = localStorage.getItem("token");
+    if (data) {
+      const dataToken = JSON.parse(data);
+      if (dataToken) {
+        setToken(dataToken.accessToken);
+      }
+    }
+  }, [token]);
+
   useEffect(() => {
     const path = window.location;
     const { origin, pathname, search } = path;
-    console.log(path);
     const nextUrl = `${origin}${pathname}${search}`;
-    if (userId && !fullName && !phoneNumber && pathname !== "/seller/profile") {
+    if (userId && !phoneNumber && !pathname.includes("/seller/profile")) {
       notification.open({
         message: "Vui lòng cập nhật thông tin",
         type: "info",
         showProgress: true,
         onClose: () => {
-          router.push(`/seller/profile?next=${encodeURIComponent(nextUrl)}`);
+          router.push(
+            `/seller/profile/edit/${userId}?next=${encodeURIComponent(nextUrl)}`
+          );
         },
       });
       // router.push(`/seller/profile?next=${encodeURIComponent(nextUrl)}`);
     }
-  }, [userId, fullName, phoneNumber, router]);
+  }, [userId, phoneNumber, router]);
   if (!user) return <SpinLoading />;
   return (
     <Layout>
       <ShopHeader user={user} />
-      <Content style={{ padding: "0 48px" }}>
+      <Content
+        style={{
+          maxWidth: "1200px",
+          margin: "10px auto",
+          width: "100%",
+        }}
+      >
         <Breadcrumb style={{ margin: "8px 0" }}>
           <Breadcrumb.Item>Trang chủ</Breadcrumb.Item>
         </Breadcrumb>
         <Layout
           style={{
-            padding: "24px 0",
-            background: colorBgContainer,
+            // padding: "24px 0",
+            margin: "20px 0",
+            // background: colorBgContainer,
             borderRadius: borderRadiusLG,
           }}
         >
           <Sidebar />
           <Content
             className="site-layout-background"
-            style={{ padding: "0 24px", minHeight: 280, margin: "0 auto" }}
+            style={{
+              padding: isMobile ? "" : "0 24px",
+              minHeight: 280,
+              margin: "0 auto",
+            }}
           >
             {children}
           </Content>

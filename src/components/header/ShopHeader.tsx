@@ -46,15 +46,15 @@ function ShopHeader({ bgColor = "#FFFFFF", user }: Props) {
   const { isMobile, isTablet, isDesktop } = useResponsive();
   const router = useRouter();
   const logoutUser = async () => {
-    logout();
-    await handleLogout();
-    notification.success({
-      message: "Đăng xuất thành công!",
-      showProgress: true,
-      onClose: () => {
-        router.refresh();
-      },
-    });
+    try {
+      await logout();
+    } catch (error) {
+      notification.error({
+        message: error as string,
+        showProgress: true,
+        placement: "top",
+      });
+    }
   };
   const profileMenu = (
     <>
@@ -93,68 +93,67 @@ function ShopHeader({ bgColor = "#FFFFFF", user }: Props) {
     </>
   );
   return (
-    <Suspense>
+    <>
       <Header
         style={{
           backgroundColor: bgColor,
           padding: "10px 20px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
         }}
       >
-        <div className="flex items-center gap-x-2 ">
-          <Image alt="Logo" src="/logo.svg" width={120} height={80} />
-          <h5 className="text-lg hidden lg:block">Kênh người bán</h5>
-        </div>
-        <div>
-          <Dropdown menu={{ items }} trigger={["hover"]}>
-            <a onClick={(e) => e.preventDefault()}>
-              <Space>
-                <BellOutlined
-                  style={{
-                    fontSize: "20px",
-                    padding: "10px",
-                  }}
-                  className="hover:bg-gray-150 cursor-pointer hover:rounded-full"
-                />
-              </Space>
-            </a>
-          </Dropdown>
+        <div className="container max-w-[1200px] mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-x-2">
+            <Image alt="Logo" src="/logo.svg" width={120} height={80} />
+            <h5 className="text-lg hidden lg:block">Kênh người bán</h5>
+          </div>
+          <div>
+            <Dropdown menu={{ items }} trigger={["hover"]}>
+              <a onClick={(e) => e.preventDefault()}>
+                <Space>
+                  <BellOutlined
+                    style={{
+                      fontSize: "20px",
+                      padding: "10px",
+                    }}
+                    className="hover:bg-gray-150 cursor-pointer hover:rounded-full"
+                  />
+                </Space>
+              </a>
+            </Dropdown>
 
-          <Dropdown
-            overlay={profileMenu}
-            trigger={["hover"]}
-            placement="bottomRight"
-          >
-            <a onClick={(e) => e.preventDefault()}>
-              <Space>
-                <Avatar
-                  src="/logo.svg"
-                  style={{
-                    fontSize: "20px",
-                    padding: "10px",
-                  }}
-                  className="hover:bg-gray-150 cursor-pointer hover:rounded-full"
-                />
-                <h3 className="hidden md:inline-block">
-                  {user.usr_name || user.usr_full_name}
-                </h3>
-                {isMobile ? (
-                  <Avatar>
-                    {user.usr_avatar
-                      ? user.usr_avatar
-                      : user.usr_name?.split("")[0].toUpperCase()}
-                  </Avatar>
-                ) : (
-                  <DownOutlined style={{}} />
-                )}
-              </Space>
-            </a>
-          </Dropdown>
+            <Dropdown
+              overlay={profileMenu}
+              trigger={["hover"]}
+              placement="bottomRight"
+            >
+              <a onClick={(e) => e.preventDefault()}>
+                <Space>
+                  <Avatar
+                    src="/logo.svg"
+                    style={{
+                      fontSize: "20px",
+                      padding: "10px",
+                    }}
+                    className="hover:bg-gray-150 cursor-pointer hover:rounded-full"
+                  />
+                  <h3 className="hidden md:inline-block">
+                    {user.usr_name || user.usr_full_name}
+                  </h3>
+                  {isMobile ? (
+                    <Avatar>
+                      {user.usr_avatar
+                        ? user.usr_avatar
+                        : user.usr_name?.split("")[0].toUpperCase()}
+                    </Avatar>
+                  ) : (
+                    <DownOutlined style={{}} />
+                  )}
+                </Space>
+              </a>
+            </Dropdown>
+          </div>
         </div>
       </Header>
-    </Suspense>
+    </>
   );
 }
 
