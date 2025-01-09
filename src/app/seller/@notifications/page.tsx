@@ -4,7 +4,7 @@ import { DownOutlined } from "@ant-design/icons";
 import { Empty, Flex, Typography } from "antd";
 import Link from "next/link";
 
-function Notification({ notifications }: INotification) {
+function Notifications({ notifications }: INotification) {
   return (
     <>
       <Flex justify="space-between" align="center">
@@ -45,4 +45,4 @@ function Notification({ notifications }: INotification) {
   );
 }
 
-export default Notification;
+export default Notifications;

@@ -1,23 +1,27 @@
 "use client";
 import { FormFieldProps } from "@/types/global";
-import { Input } from "antd";
-import React from "react";
+import { Radio } from "antd";
 import { Controller } from "react-hook-form";
 
-interface IInputProps extends FormFieldProps {}
+interface IRadio extends FormFieldProps {
+  className?: string;
+  data: string[];
+}
 
-function InputCustom({ control, name, label, type }: IInputProps) {
+function RadioCustom({ name, control, label, data }: IRadio) {
   return (
     <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
         <>
-          {type === "password" ? (
-            <Input.Password {...field} placeholder={label} />
-          ) : (
-            <Input placeholder={label} {...field} />
-          )}
+          <Radio.Group {...field} name={name}>
+            {data.map((item) => (
+              <Radio key={item} value={item}>
+                {item}
+              </Radio>
+            ))}
+          </Radio.Group>
           {fieldState.error && (
             <span style={{ color: "red", display: "block" }}>
               {fieldState.error.message}
@@ -29,4 +33,4 @@ function InputCustom({ control, name, label, type }: IInputProps) {
   );
 }
 
-export default InputCustom;
+export default RadioCustom;

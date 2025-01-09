@@ -17,7 +17,7 @@ export const UserSchemaType = z.object({
   userSex: z.string(),
   userCreatedAt: z.date(),
   userUpdatedAt: z.date(),
-  userDateOfBirth: z.string(),
+  userDateOfBirth: z.date(),
 });
 
 export type UserSchema = z.infer<typeof UserSchemaType>;

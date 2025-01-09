@@ -4,7 +4,6 @@ const baseURL = process.env.NEXT_PUBLIC_SERVER_URL;
 export const axiosInstance = axios.create({
   baseURL,
   headers: {
-    "Content-Type": "application/json;charset=UTF-8",
     "Access-Control-Allow-Origin": true,
     "Access-Control-Allow-Methods": ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     "Access-Control-Allow-Headers":
@@ -31,6 +30,10 @@ axiosInstance.interceptors.request.use(function (
     delete config.headers["Authorization"];
     delete config.headers["x-client-id"];
   }
+   // Tự động loại bỏ Content-Type nếu đang dùng FormData
+   if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
   return config;
 });
 
@@ -39,8 +42,8 @@ axiosInstance.interceptors.response.use(
     return response; // Return the data from the response
   },
   (error) => {
-    if (error.response.data) {
-      return Promise.reject(error.response.data);
+    if (error.response) {
+      return Promise.reject(error.response);
     }
     return Promise.reject(error);
   }

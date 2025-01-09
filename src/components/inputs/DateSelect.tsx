@@ -1,67 +1,93 @@
 "use client";
-import React, { useEffect, useId, useState } from "react";
-import { MONTH, DAYS } from "@/constants/index";
-import SelectInput from "./Select";
-import { handleConvertDatetime } from "@/helpers";
-type Props = {
-  dataDate?: string;
-  onApply: (selectedDate: { day: string; month: string; year: string }) => void;
-};
+import React, { useEffect } from "react";
+import { Control, useForm } from "react-hook-form";
+import SelectCustom from "./Select";
+import { DAYS, MONTH } from "@/constants";
+
+interface IDataDate {
+  day: string;
+  month: string;
+  year: string;
+}
+
+interface Props {
+  dataDate?: Date;
+  onApply: (selectedDate: IDataDate) => void;
+}
 
 function DateSelect({ dataDate, onApply }: Props) {
+  const { control, watch, setValue, getValues } = useForm<IDataDate>({
+    defaultValues: {
+      day: "",
+      month: "",
+      year: "",
+    },
+    criteriaMode: "all",
+  }, 
+);
+
+  // Generate year data
   const getYear = () => {
     const currentYear = new Date().getFullYear();
     const years = [];
     const startDate = currentYear - 100;
     for (let i = currentYear; i >= startDate; i--) {
-      years.push(i.toString());
+      years.push({ id: i.toString(), label: i.toString() });
     }
     return years;
   };
-  const dayId = useId();
-  const monthId = useId();
-  const yearId = useId();
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [date, setDate] = useState<string>("");
-  const [month, setMonth] = useState<string>("");
-  const [year, setYear] = useState<string>("");
+
+  // Update form values when `dataDate` is provided
   useEffect(() => {
     if (dataDate) {
-      const { day, month, year } = handleConvertDatetime(dataDate);
-      setDate(day.toString());
-      setMonth("Tháng " + month.toString());
-      setYear(year.toString());
+      const newData = new Date(dataDate);
+      const day = newData.getDate().toString();
+      const month = (newData.getMonth() + 1).toString();
+      const year = newData.getFullYear().toString();
+      setValue("day", day);
+      setValue("month", "Tháng " + month);
+      setValue("year", year);
+
+      // Trigger `onApply` for the initial value
+      onApply({ day, month, year });
     }
-  }, [dataDate]);
+  }, [dataDate, setValue, onApply]);
+
+  // Watch for changes in form values
+  const selectedDate = watch(["day", "month", "year"]);
+
   useEffect(() => {
-    const normalizedMonth = month.replace("Tháng ", "");
-    onApply({ day: date, month: normalizedMonth, year: year });
-  }, [date, month, year]);
+    const [day, month, year] = selectedDate;
+    if (day && month && year) {
+      onApply({ day, month, year });
+    }
+  }, [selectedDate, onApply]);
+
   return (
     <div className="w-full gap-x-3 flex items-center">
-      <SelectInput
-        value={date}
-        setValue={setDate}
-        id={dayId}
-        activeId={activeId}
-        setActiveId={setActiveId}
+      <SelectCustom
+        name="day"
+        control={control}
         data={DAYS}
+        valueField="label"
+        keyField="id"
+        placeholder="Ngày"
       />
-      <SelectInput
-        value={month}
-        setValue={setMonth}
-        id={monthId}
-        activeId={activeId}
-        setActiveId={setActiveId}
+      <SelectCustom
+        name="month"
+        control={control}
         data={MONTH}
+        valueField="label"
+        keyField="id"
+        placeholder="Tháng"
       />
-      <SelectInput
-        value={year}
-        setValue={setYear}
-        id={yearId}
-        activeId={activeId}
-        setActiveId={setActiveId}
+      <SelectCustom
+        name="year"
+        control={control}
         data={getYear()}
+        valueField="label"
+        keyField="id"
+        placeholder="Năm"
       />
     </div>
   );

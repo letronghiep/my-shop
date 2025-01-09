@@ -1,7 +1,5 @@
 "use client";
 import useResponsive from "@/hooks/useResponsive";
-import { handleLogout } from "@/services/auth/logout";
-import { getMe } from "@/services/user";
 import useAuthStore from "@/stores/userStore";
 import { IUser } from "@/types/global";
 import {
@@ -13,12 +11,20 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Avatar, Dropdown, Menu, notification, Space } from "antd";
+import {
+  Avatar,
+  Dropdown,
+  Flex,
+  notification,
+  Row,
+  Space,
+  Typography,
+} from "antd";
 import { Header } from "antd/es/layout/layout";
-import dynamic from "next/dynamic";
+import { ItemType } from "antd/es/menu/interface";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect } from "react";
 type Props = {
   bgColor?: string;
   user: IUser;
@@ -56,42 +62,63 @@ function ShopHeader({ bgColor = "#FFFFFF", user }: Props) {
       });
     }
   };
-  const profileMenu = (
-    <>
-      <Menu className="w-[300px]">
-        <Menu.Item>
-          <div className="flex items-center justify-center flex-col gap-2">
-            <Avatar size={isMobile ? 0 : 80}>
-              {user.usr_avatar
-                ? user.usr_avatar
-                : user.usr_name?.split("")[0].toUpperCase()}
-            </Avatar>
-            <p className="hidden md:block">
-              {user.usr_name || user.usr_full_name}
-            </p>
-          </div>
-        </Menu.Item>
-        <Menu.Item key="1" icon={<UserOutlined />}>
-          Hồ Sơ Shop
-        </Menu.Item>
-        <Menu.Item key="2" icon={<SettingOutlined />}>
-          Thiết Lập Shop
-        </Menu.Item>
-        <Menu.Item key="3" icon={<GlobalOutlined />}>
-          Tiếng Việt (Vietnamese)
-        </Menu.Item>
-        <Menu.Divider />
-        <Menu.Item
-          onClick={logoutUser}
-          key="4"
-          icon={<LogoutOutlined />}
-          danger
+  const profileMenu: ItemType[] = [
+    {
+      key: "1",
+      label: (
+        <Flex
+          gap="middle"
+          vertical
+          align="center"
+          flex="center"
+          style={{
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
         >
-          Đăng xuất
-        </Menu.Item>
-      </Menu>
-    </>
-  );
+          <Avatar
+            src={`${
+              user.usr_avatar
+                ? user.usr_avatar
+                : user.usr_name?.split("")[0].toUpperCase()
+            }`}
+            alt="avatar"
+            size={isMobile ? 0 : 60}
+          />
+          <Typography className="hidden md:block">
+            {user.usr_full_name || user.usr_name}
+          </Typography>
+        </Flex>
+      ),
+    },
+    {
+      key: "2",
+      icon: <UserOutlined />,
+      label: <Typography>Hồ Sơ Shop</Typography>,
+    },
+    {
+      key: "3",
+      icon: <SettingOutlined />,
+      label: <Typography>Thiết Lập Shop</Typography>,
+      onClick: () => router.push(`/seller/profile/edit/${user._id}`),
+    },
+    {
+      key: "4",
+      icon: <GlobalOutlined />,
+      label: <Typography>Tiếng Việt (Vietnamese)</Typography>,
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "5",
+      icon: <LogoutOutlined />,
+      label: <Typography>Đăng xuất</Typography>,
+      danger: true,
+      onClick: logoutUser,
+    },
+  ];
   return (
     <>
       <Header
@@ -100,58 +127,77 @@ function ShopHeader({ bgColor = "#FFFFFF", user }: Props) {
           padding: "10px 20px",
         }}
       >
-        <div className="container max-w-[1200px] mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-x-2">
+        <Flex
+          align="center"
+          justify="space-between"
+          style={{
+            maxWidth: "1200px",
+            margin: "auto",
+          }}
+        >
+          <Link href="/seller" className="flex items-center gap-x-2">
             <Image alt="Logo" src="/logo.svg" width={120} height={80} />
-            <h5 className="text-lg hidden lg:block">Kênh người bán</h5>
-          </div>
-          <div>
-            <Dropdown menu={{ items }} trigger={["hover"]}>
-              <a onClick={(e) => e.preventDefault()}>
-                <Space>
-                  <BellOutlined
-                    style={{
-                      fontSize: "20px",
-                      padding: "10px",
-                    }}
-                    className="hover:bg-gray-150 cursor-pointer hover:rounded-full"
-                  />
-                </Space>
-              </a>
-            </Dropdown>
-
-            <Dropdown
-              overlay={profileMenu}
-              trigger={["hover"]}
-              placement="bottomRight"
+            <Typography.Title
+              style={{
+                color: "#0070f3",
+                marginBottom: "4px",
+              }}
+              level={4}
             >
-              <a onClick={(e) => e.preventDefault()}>
-                <Space>
-                  <Avatar
-                    src="/logo.svg"
-                    style={{
-                      fontSize: "20px",
-                      padding: "10px",
-                    }}
-                    className="hover:bg-gray-150 cursor-pointer hover:rounded-full"
-                  />
-                  <h3 className="hidden md:inline-block">
-                    {user.usr_name || user.usr_full_name}
-                  </h3>
-                  {isMobile ? (
-                    <Avatar>
-                      {user.usr_avatar
-                        ? user.usr_avatar
-                        : user.usr_name?.split("")[0].toUpperCase()}
-                    </Avatar>
-                  ) : (
-                    <DownOutlined style={{}} />
-                  )}
-                </Space>
-              </a>
+              Kênh người bán
+            </Typography.Title>
+          </Link>
+          <Flex align="center" justify="center" gap="middle">
+            <Dropdown menu={{ items }} trigger={["hover"]}>
+              <BellOutlined
+                style={{
+                  fontSize: "20px",
+                  padding: "10px",
+                }}
+              />
             </Dropdown>
-          </div>
-        </div>
+            <Dropdown
+              menu={{ items: profileMenu }}
+              placement="bottomLeft"
+              trigger={[`${isMobile ? "click" : "hover"}`]}
+              overlayStyle={{ width: "240px" }}
+            >
+              <Flex>
+                {isMobile ? (
+                  <Avatar
+                    src={`${
+                      user.usr_avatar
+                        ? user.usr_avatar
+                        : user.usr_name?.split("")[0].toUpperCase()
+                    }`}
+                    alt="avatar"
+                  />
+                ) : (
+                  <Space align="center">
+                    <Avatar
+                      src={`${
+                        user.usr_avatar
+                          ? user.usr_avatar
+                          : user.usr_name?.split("")[0].toUpperCase()
+                      }`}
+                      alt="avatar"
+                    />
+                    <Typography.Title
+                      style={{
+                        margin: 0,
+                      }}
+                      level={5}
+                      className="hidden md:inline-block"
+                    >
+                      {user.usr_full_name || user.usr_name}
+                    </Typography.Title>
+                    <DownOutlined />
+                  </Space>
+                )}
+              </Flex>
+            </Dropdown>
+          </Flex>
+        </Flex>
       </Header>
     </>
   );

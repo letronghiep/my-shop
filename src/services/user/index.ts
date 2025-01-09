@@ -29,9 +29,20 @@ export async function updateUserInfo(userId: string, user: IUser) {
       `${apiOrigin}/user/update/${userId}`,
       user
     );
-    console.log(res);
     const data = await res.data;
     return data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function uploadUserAvatar(formData: FormData) {
+  try {
+    const res = await axiosInstance.post(`/upload/avatar`, formData);
+    if (res.status === 200) {
+      const data = await res.data;
+      return data;
+    }
   } catch (error) {
     return error;
   }

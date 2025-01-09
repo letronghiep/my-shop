@@ -1,20 +1,12 @@
 "use client";
-import WorkFlow, { ClassName, Label, State } from "@/components/WorkFlow";
 import useResponsive from "@/hooks/useResponsive";
 import { getMe } from "@/services/user";
-import useAuthStore from "@/stores/userStore";
 import { IUser } from "@/types/global";
 import {
   CheckCircleTwoTone,
-  CloseOutlined,
-  CopyFilled,
-  EditOutlined,
-  QuestionCircleOutlined,
+  QuestionCircleOutlined
 } from "@ant-design/icons";
-import { Tooltip } from "antd";
-import Image from "next/image";
-import Link from "next/link";
-import { useCallback, useEffect, useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
 
 function Profiles() {
@@ -41,6 +33,9 @@ function Profiles() {
   useEffect(() => {
     async function getDataMe() {
       const data = await getMe();
+      if (data.status === 200) {
+        setDataUser(data.metadata.user);
+      }
     }
     getDataMe();
   }, []);
@@ -56,7 +51,7 @@ function Profiles() {
     {
       title: "Địa chỉ",
       link: `#${addressId}`,
-      icon: !user?.sent_address ? (
+      icon: !dataUser?.sent_address ? (
         <QuestionCircleOutlined style={{ fontSize: 24, color: "#ccc" }} />
       ) : (
         <CheckCircleTwoTone style={{ fontSize: 24 }} twoToneColor="#52c41a" />
@@ -84,7 +79,7 @@ function Profiles() {
   const handleChangeImage = () => {};
   return (
     <>
-      <h1 className="font-bold text-2xl ">Hồ sơ người bán</h1>
+      {/* <h1 className="font-bold text-2xl ">Hồ sơ người bán</h1>
       {dataUser &&
         (!dataUser.received_address || !dataUser.sent_address) &&
         isOpen && (
@@ -276,7 +271,7 @@ function Profiles() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </>
   );
 }

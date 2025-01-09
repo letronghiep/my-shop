@@ -1,23 +1,24 @@
 "use client";
 import { FormFieldProps } from "@/types/global";
-import { Input } from "antd";
+import { Checkbox, Form } from "antd";
 import React from "react";
 import { Controller } from "react-hook-form";
 
-interface IInputProps extends FormFieldProps {}
+interface ICheckbox extends FormFieldProps {
+  className?: string;
+  disabled?: boolean;
+}
 
-function InputCustom({ control, name, label, type }: IInputProps) {
+function CheckboxCustom({ name, control, label, disabled = false }: ICheckbox) {
   return (
     <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
         <>
-          {type === "password" ? (
-            <Input.Password {...field} placeholder={label} />
-          ) : (
-            <Input placeholder={label} {...field} />
-          )}
+          <Checkbox {...field} disabled={disabled} checked={field.value}>
+            {label}
+          </Checkbox>{" "}
           {fieldState.error && (
             <span style={{ color: "red", display: "block" }}>
               {fieldState.error.message}
@@ -29,4 +30,4 @@ function InputCustom({ control, name, label, type }: IInputProps) {
   );
 }
 
-export default InputCustom;
+export default CheckboxCustom;

@@ -1,11 +1,10 @@
-import React from 'react'
+"use client";
+import React from "react";
 
-type Props = {}
+type Props = {};
 
 function Home({}: Props) {
-  return (
-    <div>Home</div>
-  )
+  return <div>Home</div>;
 }
 
-export default Home
+export default Home;

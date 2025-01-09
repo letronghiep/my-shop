@@ -1,0 +1,220 @@
+"use client";
+
+import { checkMaxSizeFile } from "@/helpers";
+import { UserSchema } from "@/schemas/UserSchema";
+import { updateUserInfo, uploadUserAvatar } from "@/services/user";
+import useAuthStore from "@/stores/userStore";
+import { IUser } from "@/types/global";
+import { Col, Flex, notification, Row, Space, Typography } from "antd";
+import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import Avatar from "../../Avatar";
+import DateSelect from "../../inputs/DateSelect";
+import Input from "../../inputs/Input";
+import RadioCustom from "@/components/inputs/Radio";
+import useResponsive from "@/hooks/useResponsive";
+import Button from "@/components/Button";
+
+type Props = { userId: string };
+
+export default function Information({ userId }: Props) {
+  const {
+    register,
+    formState: { errors },
+    setValue,
+    handleSubmit,
+    watch,
+    control,
+  } = useForm<UserSchema>({
+    criteriaMode: "all",
+  });
+  const { user } = useAuthStore();
+  const [dataUser, setDataUser] = React.useState<IUser | null>(null);
+  const [tmpAvatar, setTmpAvatar] = useState<string>("");
+  const [loadingAvatar, setLoadingAvatar] = useState<boolean>(false);
+  const { isMobile } = useResponsive();
+  useEffect(() => {
+    if (user) setDataUser(user);
+  }, [user]);
+  const [isFocused, setIsFocused] = useState(false);
+  const setValueOfFormData = useCallback(() => {
+    setValue("userId", dataUser?.usr_id ?? 0);
+    setValue("username", dataUser?.usr_name ?? "");
+    setValue("userFullName", dataUser?.usr_full_name ?? "");
+    setValue("userSex", dataUser?.usr_sex ?? "");
+    setValue("userPhone", dataUser?.usr_phone ?? "");
+    setValue("userDateOfBirth", dataUser?.usr_date_of_birth ?? new Date());
+    setValue("userAvatar", dataUser?.usr_avatar ?? tmpAvatar);
+    setValue("userEmail", dataUser?.usr_email ?? "");
+  }, [dataUser, setValue, tmpAvatar]);
+  useEffect(() => {
+    if (dataUser) setValueOfFormData();
+  }, [dataUser, setValueOfFormData]);
+  const handleDateChange = (newDate: {
+    day: string;
+    month: string;
+    year: string;
+  }) => {
+    setValue(
+      "userDateOfBirth",
+      new Date(`${newDate.year}/${newDate.month}/${newDate.day}`)
+    );
+  };
+  const uploadAvatar = async (file: File) => {
+    try {
+      setLoadingAvatar(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      const data = await uploadUserAvatar(formData);
+      if (data) {
+        setValue("userAvatar", data.metadata.image_url);
+        setLoadingAvatar(false);
+      }
+    } catch (error) {
+      console.error(error);
+      notification.error({
+        message: "Tải ảnh thất bại",
+        type: "error",
+      });
+      setLoadingAvatar(false);
+    }
+  };
+  const handleChangeImage = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length) {
+      const file = e.target.files[0];
+      const checkSize = checkMaxSizeFile(file);
+      if (checkSize) {
+        const url = URL.createObjectURL(file);
+        setTmpAvatar(url);
+        uploadAvatar(file);
+      } else {
+        notification.warning({
+          message: "Kích thước ảnh phải nhỏ hơn hoặc bằng 1MB",
+          type: "warning",
+        });
+      }
+    }
+  };
+  const handleSubmitInfo = async (data: UserSchema) => {
+    const dataUpdateUser: IUser = {
+      usr_id: data.userId,
+      usr_name: data.username,
+      usr_full_name: data.userFullName,
+      usr_sex: data.userSex,
+      usr_phone: data.userPhone,
+      usr_date_of_birth: new Date(data.userDateOfBirth),
+      usr_avatar: data.userAvatar,
+      usr_email: data.userEmail,
+    };
+    await updateUserInfo(userId, dataUpdateUser);
+    notification.success({
+      message: "Cập nhật thông tin thành công",
+      type: "success",
+      showProgress: true,
+      onClose: () => {
+        window.location.reload();
+      },
+    });
+  };
+
+  return (
+    <Flex  vertical justify="flex-start" style={{
+      width: '100%',
+
+    }}>
+      <Row
+        style={{
+          padding: "24px",
+          width: "100%",
+        }}
+      >
+        <Col
+          span={16}
+          style={{
+            order: isMobile ? 2 : 1,
+          }}
+        >
+          <Typography.Title level={4} className="text-xl font-bold ">
+            Thông tin cơ bản
+          </Typography.Title>
+          <Flex gap={10} vertical style={{ width: "80%" }}>
+            <Input
+              type="text"
+              label="Mã người dùng"
+              name="userId"
+              register={register}
+              error={errors.userId}
+              control={control}
+            />
+            <Input
+              type="text"
+              label="Tên đăng nhập"
+              name="username"
+              register={register}
+              error={errors.username}
+              control={control}
+            />
+            <Input
+              type="text"
+              label="Họ và tên"
+              name="userFullName"
+              register={register}
+              error={errors.userFullName}
+              control={control}
+            />
+            <Input
+              type="email"
+              label="Email"
+              name="userEmail"
+              register={register}
+              error={errors.userEmail}
+              control={control}
+            />
+            <Input
+              type="text"
+              label="Số điện thoại"
+              name="userPhone"
+              register={register}
+              error={errors.userPhone}
+              control={control}
+            />
+
+            <DateSelect
+              onApply={handleDateChange}
+              dataDate={dataUser?.usr_date_of_birth}
+            />
+            <RadioCustom
+              name="userSex"
+              data={["Nam", "Nữ"]}
+              control={control}
+            />
+          </Flex>
+        </Col>
+        <Col
+          span={8}
+          style={{
+            order: isMobile ? 1 : 2,
+          }}
+        >
+          <Avatar
+            src={dataUser?.usr_avatar || tmpAvatar}
+            alt="avatar"
+            handleChangeImage={handleChangeImage}
+            register={register}
+            name="userAvatar"
+            loading={loadingAvatar}
+          />
+        </Col>
+      </Row>
+      <Button
+        size="sm"
+        variant="primary"
+        type="submit"
+        className="w-fit border ml-6 mb-6 border-blue-500 hover:border-none hover:bg-blue-500 text-black hover:text-white hover:highlight-white  py-2 px-4 rounded cursor-pointer text-black"
+        onClick={handleSubmit(handleSubmitInfo)}
+      >
+        Cập nhật
+      </Button>
+    </Flex>
+  );
+}

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { axiosInstance } from "@/configs/axiosInstance";
 import { AxiosResponse, AxiosError } from "axios";
+import { IMetadataArray } from "@/types/global";
 
 type ApiResponse<T> = {
-  data: T | null;
+  data: T | IMetadataArray<T> | null;
   loading: boolean;
   error: AxiosError | null;
 };

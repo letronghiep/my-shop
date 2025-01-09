@@ -1,4 +1,4 @@
-export const handleConvertDatetime = (datetime: string) => {
+export const handleConvertDatetime = (datetime: Date) => {
   const date = new Date(datetime);
   return {
     day: date.getDate(),

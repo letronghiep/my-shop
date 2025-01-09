@@ -5,7 +5,7 @@ import useAuthStore from "@/stores/userStore";
 import { notification } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import '../../globals.css';
+import "../../globals.css";
 type Props = {};
 
 export default function Login({}: Props) {
@@ -29,7 +29,8 @@ export default function Login({}: Props) {
       router.replace(decodeURIComponent(redirectTo));
     }
   }, [isAuthenticated, redirectTo, router]);
-  return (
-      <LoginForm title="" onSubmit={onSubmit} loading={loading} />
-  );
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
+  return <LoginForm title="" onSubmit={onSubmit} loading={loading} />;
 }

@@ -1,18 +1,44 @@
+"use client";
+import useResponsive from "@/hooks/useResponsive";
 import { FormFieldProps } from "@/types/global";
+import { Flex, Space, Typography } from "antd";
 import Image from "next/image";
 import React from "react";
 
 interface Props extends FormFieldProps {
   src?: string;
   alt: string;
+  loading: boolean;
   handleChangeImage: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-function Avatar({ src, alt, register, name, handleChangeImage }: Props) {
+function Avatar({
+  src,
+  alt,
+  register,
+  name,
+  loading,
+  handleChangeImage,
+}: Props) {
+  const { isMobile } = useResponsive();
   return (
-    <>
-      {" "}
-      <div className="relative w-[80px] h-[80px] lg:w-[120px] lg:h-[120px] rounded-full overflow-hidden">
+    <Flex vertical align="center" gap={10}>
+      <Flex
+        vertical
+        style={{
+          position: "relative",
+          height: isMobile ? "80px" : "120px",
+          width: isMobile ? "80px" : "120px",
+          borderRadius: "50%",
+          overflow: "hidden",
+          boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
+          backgroundColor: "white",
+          display: "flex",
+        }}
+      >
+        {loading && (
+          <Space className="absolute top-0 left-0 w-full h-full bg-gray-200" />
+        )}
         {src ? (
           <Image
             src={src}
@@ -30,7 +56,7 @@ function Avatar({ src, alt, register, name, handleChangeImage }: Props) {
             className="object-cover"
           />
         )}
-      </div>
+      </Flex>
       <label
         htmlFor="avatar"
         className="border-2 border-blue-400 text-blue-400 font-semibold text-sm  w-[80px]  lg:w-[120px] px-4 py-1 text-center rounded-full border-separate cursor-pointer hover:text-white hover:bg-blue-400 hover:border-none transition-colors duration-300 ease-linear focus:outline-none"
@@ -39,15 +65,19 @@ function Avatar({ src, alt, register, name, handleChangeImage }: Props) {
           id="avatar"
           className="hidden"
           type="file"
-          {...register(name)}
+          {...(register && register(name))}
           onChange={handleChangeImage}
         />
         Chọn ảnh
       </label>
-      <p className="text-gray-400 text-sm italic">
+      <Typography.Title level={5} style={{
+        color: '#9ca3af',
+        fontSize:'12px',
+        fontStyle:'italic'
+      }}>
         Dụng lượng file tối đa 1 MB
-      </p>
-    </>
+      </Typography.Title>
+    </Flex>
   );
 }
 

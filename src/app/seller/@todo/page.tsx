@@ -3,10 +3,10 @@ import React from 'react'
 
 type Props = {}
 
-function Modal({}: Props) {
+function Todo({}: Props) {
   return (
-    <div>Modal</div>
+    <div>Todo</div>
   )
 }
 
-export default Modal
+export default Todo

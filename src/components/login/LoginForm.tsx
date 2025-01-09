@@ -22,6 +22,7 @@ function LoginForm({ title, onSubmit, loading }: FormProps) {
   const {
     register,
     watch,
+    control,
     handleSubmit,
     formState: { errors },
     setError,
@@ -96,9 +97,8 @@ function LoginForm({ title, onSubmit, loading }: FormProps) {
                 name="username"
                 register={register}
                 error={errors.username}
-                size="sm"
-                options={{}}
-                variant={`${errors.username ? "danger" : "default"}`}
+                control={control}
+                placeholder="Tài khoản"
               />
               <Input
                 type="password"
@@ -107,9 +107,8 @@ function LoginForm({ title, onSubmit, loading }: FormProps) {
                 register={register}
                 placeholder="Mật khẩu"
                 error={errors.password}
-                size="sm"
-                options={{}}
-                variant={`${errors.password ? "danger" : "default"}`}
+                control={control}
+              
               />
 
               <div className="flex items-center justify-between text-sm">
